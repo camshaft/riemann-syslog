@@ -1,0 +1,21 @@
+
+# Start SASL
+-boot start_sasl
+
+# Start main application
+-s riemann_syslog
+
+# Start 'sync' script, for auto-reloading
+-s sync
+
+# Node name
+-name riemann_syslog@127.0.0.1
+
+# Cookie name
+-setcookie riemann_syslog
+
+# Kernel polling
++K true
+
+# 4 async threads
++A 4
