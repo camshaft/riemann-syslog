@@ -11,7 +11,7 @@
 
 start(_StartType, _StartArgs) ->
   {ok, _} = ranch:start_listener(riemann_syslog, 1,
-          ranch_tcp, [{port, 5555}], riemann_syslog_protocol, []),
+          ranch_tcp, [{port, get_env(port, 5555)}], riemann_syslog_protocol, []),
 
   %% Start the frame event handler
   {ok, Pid} = gen_event:start_link({local, frame_man}),
@@ -22,3 +22,9 @@ start(_StartType, _StartArgs) ->
 
 stop(_State) ->
     ok.
+
+get_env(Name, Default) ->
+  case application:get_env(riemann_syslog, Name) of
+    {ok, V} -> V;
+    _ -> Default
+  end.

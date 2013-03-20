@@ -7,3 +7,4 @@ ebin
 dev/sync
 *.log
 *.dump
+rel/riemann_syslog
