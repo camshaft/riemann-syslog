@@ -36,19 +36,19 @@ scan(Buffer) ->
   scan(Buffer, []).
 
 %% We have a space
-scan(<<" ", Rest/binary>>, Numbers) when (erlang:length(Numbers) > 0) ->
+scan(<<" ", Rest/binary>>, Numbers) when length(Numbers) > 0 ->
   {ok, list_to_integer(Numbers), Rest};
 %% We have a number
-scan(<<Digit:8, Rest/binary>>, Numbers) when ?is_bin_number(Digit) ->
+scan(<<Digit, Rest/binary>>, Numbers) when ?is_bin_number(Digit) ->
   scan(Rest, Numbers++[Digit]);
 %% We've at the end of the stream and we were in the middle of checking numbers
-scan(<<>>, Numbers) when (erlang:length(Numbers) > 0)  ->
+scan(<<>>, Numbers) when length(Numbers) > 0  ->
   {eos, Numbers};
 %% We've at the end of the stream and haven't found any numbers
 scan(<<>>, _)  ->
   eos;
 %% Move on to the next byte, we don't understand this one
-scan(<<_:8, Rest/binary>>, _)->
+scan(<<_, Rest/binary>>, _)->
   scan(Rest, []).
 
 %%%%
@@ -86,7 +86,7 @@ analyze(Result) ->
   Result.
 
 %%%%
-%% Split `Bin` by `Length`
+%% Split `Bin` by `Length` in bytes
 %%%%
 split(Bin, Length)->
   BitLength = Length*8,
