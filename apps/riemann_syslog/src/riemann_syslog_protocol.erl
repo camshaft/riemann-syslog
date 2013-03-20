@@ -10,10 +10,8 @@ init(ListenerPid, Socket, Transport, _Opts = []) ->
   ok = ranch:accept_ack(ListenerPid),
   loop(Socket, Transport, <<>>).
 
-handle(_Frame)->
-  %% TODO emit a frame event
-  io:format("~p~n", [_Frame]),
-  ok.
+handle(Frame)->
+  gen_event:notify(frame_man, {frame, Frame}).
 
 loop(Socket, Transport, Buffer) ->
   case Transport:recv(Socket, 0, 30000) of
@@ -22,6 +20,5 @@ loop(Socket, Transport, Buffer) ->
       [handle(Frame) || Frame <- Frames],
       loop(Socket, Transport, Buffer2);
     _ ->
-      % Timeout
       loop(Socket, Transport, Buffer)
   end.
