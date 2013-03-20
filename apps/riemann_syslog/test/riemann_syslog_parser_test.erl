@@ -43,6 +43,6 @@ garbage_test()->
   ?assertEqual(<<"">>, Rest).
 
 garbage2_test()->
-  {Frames, Rest} = riemann_syslog_parser:parse(<<"lkjahsdfp8 q3riuh asdf80r qouitrh ohjasdf098u q40934r 09as oasdf0[9u qh asdf[09u areto hasdk 08u as0df 09u as">>),
+  {Frames, Rest} = riemann_syslog_parser:parse(<<"8 q3riuh asdf80r ">>),
   ?assertEqual([], Frames),
   ?assertEqual(<<"">>, Rest).

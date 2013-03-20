@@ -21,6 +21,10 @@ parse(Data, Frames)->
 extract_frame(Data) ->
   case bin_match(Data) of
 
+    %% TODO we probably want to have a max buffer size so we don't get too big
+    %% i.e. if we parse 12345678987654321, that's a pretty big buffer and it's
+    %%      most likely to be a parse error
+
     %% We are at the end of the stream and have a perfect match
     {ok, Length, Rest} when byte_size(Rest) =:= Length ->
       split(Rest, Length);
