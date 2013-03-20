@@ -1,6 +1,6 @@
 
 REBAR = ./rebar
-APP = wolfgang
+APP = riemann_syslog
 
 default: compile
 
@@ -50,4 +50,3 @@ dialyzer: compile
 
 
 .PHONY: all deps test
-

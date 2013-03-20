@@ -2,8 +2,10 @@
 
 -export ([parse/1]).
 
--define (UPPER, 58).
--define (LOWER, 47).
+-define (UPPER, 58). %% <<"9">> =:= 57
+-define (LOWER, 47). %% <<"0">> =:= 48
+
+-define (is_bin_number(Digit), Digit > ?LOWER andalso Digit < ?UPPER).
 
 parse(Data) ->
   parse(Data, []).
@@ -29,14 +31,14 @@ extract_frame(Data) ->
     {ok, Length, Rest} when byte_size(Rest) =:= Length ->
       split(Rest, Length);
 
-    %% check the next frame to see if we have a valid frame here
     {ok, Length, Rest} when byte_size(Rest) >= Length ->
       
+      %% check the next frame to see if we have a valid frame here
       case binary:at(Rest, Length) of
 
         %% The next frame starts with a digit; in most cases this means we have 
         %% a valid frame
-        Digit when (Digit > ?LOWER andalso Digit < ?UPPER) ->
+        Digit when ?is_bin_number(Digit) ->
           split(Rest, Length);
 
         %% The next "frame" after `Length` doesn't start with a number so we're
@@ -61,7 +63,7 @@ bin_match(Data) ->
 bin_match(<<" ", Rest/binary>>, Numbers) when (erlang:length(Numbers) > 0) ->
   {ok, list_to_integer(Numbers), Rest};
 %% We have a number
-bin_match(<<Digit:8, Rest/binary>>, Numbers) when (Digit > ?LOWER andalso Digit < ?UPPER) ->
+bin_match(<<Digit:8, Rest/binary>>, Numbers) when ?is_bin_number(Digit) ->
   bin_match(Rest, Numbers++[Digit]);
 %% We've at the end of the stream and we were in the middle of checking numbers
 bin_match(<<>>, Numbers) when (erlang:length(Numbers) > 0)  ->
