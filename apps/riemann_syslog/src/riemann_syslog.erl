@@ -11,6 +11,8 @@ start_link() ->
 
 start() ->
   ok = application:start(ranch),
+  ok = lager:start(),
+  ok = application:start(riemann),
   ok = application:start(riemann_syslog).
 
 stop() ->

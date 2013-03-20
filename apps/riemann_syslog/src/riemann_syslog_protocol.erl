@@ -1,5 +1,7 @@
 -module (riemann_syslog_protocol).
 
+-compile([{parse_transform, lager_transform}]).
+
 -export([start_link/4, init/4]).
 
 start_link(ListenerPid, Socket, Transport, Opts) ->
@@ -19,6 +21,10 @@ loop(Socket, Transport, Buffer) ->
       {Frames, Buffer2} = riemann_syslog_octet_parser:parse(<< Buffer/binary, Data/binary >>),
       [handle(Frame) || Frame <- Frames],
       loop(Socket, Transport, Buffer2);
+    {error, closed}->
+      ok;
+    {error, Error} ->
+      lager:error("Connection error: ~p~n", [Error]);
     _ ->
       loop(Socket, Transport, Buffer)
   end.

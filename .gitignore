@@ -6,3 +6,4 @@ deps
 ebin
 dev/sync
 *.log
+*.dump

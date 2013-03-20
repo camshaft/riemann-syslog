@@ -27,13 +27,11 @@ parse(Buffer, Frames)->
 %% Find the next frame in the buffer and analyize it
 %%%%
 frame(Buffer) ->
-  analyze(scan(Buffer)).
+  analyze(scan(Buffer, [])).
 
 %%%%
 %% Scan for the next frame
 %%%%
-scan(Buffer) ->
-  scan(Buffer, []).
 
 %% We have a space
 scan(<<" ", Rest/binary>>, Numbers) when length(Numbers) > 0 ->

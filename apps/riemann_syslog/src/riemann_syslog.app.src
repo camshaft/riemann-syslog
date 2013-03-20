@@ -6,6 +6,8 @@
   {applications, [
                   kernel,
                   stdlib,
+                  lager,
+                  riemann,
                   ranch
                  ]},
   {mod, { riemann_syslog_app, []}},
