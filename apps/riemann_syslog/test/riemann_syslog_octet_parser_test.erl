@@ -17,6 +17,11 @@ midstream_test()->
   ?assertEqual([<<"test">>], Frames),
   ?assertEqual(<<"">>, Rest).
 
+spaces_test()->
+  {Frames, Rest} = riemann_syslog_octet_parser:parse(<<"        4 test">>),
+  ?assertEqual([<<"test">>], Frames),
+  ?assertEqual(<<"">>, Rest).
+
 endstream_number_test()->
   {Frames, Rest} = riemann_syslog_octet_parser:parse(<<"4 test3">>),
   ?assertEqual([<<"test">>], Frames),
