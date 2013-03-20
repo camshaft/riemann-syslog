@@ -18,7 +18,7 @@ handle(_Frame)->
 loop(Socket, Transport, Buffer) ->
   case Transport:recv(Socket, 0, 30000) of
     {ok, Data} ->
-      {Frames, Buffer2} = riemann_syslog_parser:parse(<< Buffer/binary, Data/binary >>),
+      {Frames, Buffer2} = riemann_syslog_octet_parser:parse(<< Buffer/binary, Data/binary >>),
       [handle(Frame) || Frame <- Frames],
       loop(Socket, Transport, Buffer2);
     _ ->
