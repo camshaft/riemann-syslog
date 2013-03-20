@@ -12,6 +12,7 @@ init(ListenerPid, Socket, Transport, _Opts = []) ->
 
 handle(_Frame)->
   %% TODO emit a frame event
+  io:format("~p~n", [_Frame]),
   ok.
 
 loop(Socket, Transport, Buffer) ->

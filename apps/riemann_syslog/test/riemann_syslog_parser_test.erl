@@ -27,7 +27,22 @@ buffered_test()->
   ?assertEqual([], Frames),
   ?assertEqual(<<"10 test">>, Rest).
 
+next_line_test()->
+  {Frames, Rest} = riemann_syslog_parser:parse(<<"10 test\n12345">>),
+  ?assertEqual([<<"test\n12345">>], Frames),
+  ?assertEqual(<<"">>, Rest).
+
+long_buffered_test()->
+  {Frames, Rest} = riemann_syslog_parser:parse(<<"5 which10 test">>),
+  ?assertEqual([<<"which">>], Frames),
+  ?assertEqual(<<"10 test">>, Rest).
+
 garbage_test()->
   {Frames, Rest} = riemann_syslog_parser:parse(<<"lkjahsdfp98y q3riuh asdf80r qouitrh ohjasdf098u q40934r 09as oasdf0[9u qh asdf[09u areto hasdk 08u as0df 09u as">>),
+  ?assertEqual([], Frames),
+  ?assertEqual(<<"">>, Rest).
+
+garbage2_test()->
+  {Frames, Rest} = riemann_syslog_parser:parse(<<"lkjahsdfp8 q3riuh asdf80r qouitrh ohjasdf098u q40934r 09as oasdf0[9u qh asdf[09u areto hasdk 08u as0df 09u as">>),
   ?assertEqual([], Frames),
   ?assertEqual(<<"">>, Rest).
