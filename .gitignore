@@ -4,4 +4,4 @@ deps
 *.beam
 *.plt
 ebin
-rebar
+dev/sync
