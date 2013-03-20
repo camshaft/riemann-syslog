@@ -8,15 +8,19 @@ start_link(ListenerPid, Socket, Transport, Opts) ->
 
 init(ListenerPid, Socket, Transport, _Opts = []) ->
   ok = ranch:accept_ack(ListenerPid),
-  loop(Socket, Transport).
+  loop(Socket, Transport, <<>>).
 
-loop(Socket, Transport) ->
-  case Transport:recv(Socket, 0, 5000) of
+handle(_Frame)->
+  %% TODO emit a frame event
+  ok.
+
+loop(Socket, Transport, Buffer) ->
+  case Transport:recv(Socket, 0, 30000) of
     {ok, Data} ->
-      io:format("~p~n", [Data]),
-      Transport:send(Socket, Data),
-      loop(Socket, Transport);
+      {Frames, Buffer2} = riemann_syslog_parser:parse(<< Buffer/binary, Data/binary >>),
+      [handle(Frame) || Frame <- Frames],
+      loop(Socket, Transport, Buffer2);
     _ ->
       % Timeout
-      loop(Socket, Transport)
+      loop(Socket, Transport, Buffer)
   end.
