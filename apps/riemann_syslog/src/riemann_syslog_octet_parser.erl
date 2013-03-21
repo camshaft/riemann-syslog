@@ -89,6 +89,5 @@ analyze(Result) ->
 %% Split `Bin` by `Length` in bytes
 %%%%
 split(Bin, Length)->
-  BitLength = Length*8,
-  <<First:BitLength, Second/binary>> = Bin,
-  {ok, binary:encode_unsigned(First), Second}.
+  <<First:Length/binary, Second/binary>> = Bin,
+  {ok, First, Second}.
