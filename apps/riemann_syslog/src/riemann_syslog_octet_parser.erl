@@ -2,9 +2,9 @@
 
 -export ([parse/1]).
 
--define (BIN_OFFSET, 48).
--define (UPPER, ?BIN_OFFSET+10). %% <<"9">> =:= 57
--define (LOWER, ?BIN_OFFSET-1). %% <<"0">> =:= 48
+-define (BIN_OFFSET, $0).
+-define (UPPER, ?BIN_OFFSET+10). %% <<"9">>
+-define (LOWER, ?BIN_OFFSET-1). %% <<"0">>
 -define (MAX_LENGTH, 99999).
 
 -define (is_bin_number(Digit), Digit > ?LOWER andalso Digit < ?UPPER).
