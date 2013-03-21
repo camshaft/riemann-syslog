@@ -4,57 +4,42 @@
 
 -define (TESTS, [
   {
-    <<"Mar 12 22:22:20 d.82bd926e-2f86-47ef-ba8b-43e4b4d78412 app[web.1] My Logs">>,
+    <<"<158>1 2013-03-21T22:55:51+00:00 d.de02fad5-ca75-4863-8d0a-de58404f9225 heroku router - - at=info method=GET path=/ host=fs-home-test.herokuapp.com request_id=755159ef5cfc715185a43e664d0be6c8 fwd=\"216.49.181.254, 204.9.229.1\" dyno=web.1 queue=0 wait=0ms connect=1ms service=364ms status=200 bytes=20946\n">>,
     [
-      {month, 3},
-      {day, 12},
-      {time, {22,22,20}},
-      {timestamp, 1363126940},
-      {drain, <<"d.82bd926e-2f86-47ef-ba8b-43e4b4d78412">>},
-      {system, <<"app">>},
-      {dyno, <<"web.1">>},
-      {message, <<"My Logs">>},
-      {message_parts, []}
-    ]
-  },
-  {
-    <<"Mar 12 22:22:20 d.82bd926e-2f86-47ef-ba8b-43e4b4d78412 app[web.1] testing=">>,
-    [
-      {month, 3},
-      {day, 12},
-      {time, {22,22,20}},
-      {timestamp, 1363126940},
-      {drain, <<"d.82bd926e-2f86-47ef-ba8b-43e4b4d78412">>},
-      {system, <<"app">>},
-      {dyno, <<"web.1">>},
-      {message, <<"testing=">>},
-      {message_parts, []}
-    ]
-  },
-  {
-    <<"Mar 12 22:22:26 d.82bd926e-2f86-47ef-ba8b-43e4b4d78412 heroku[router] at=info method=GET path=/search host=my-search-test.herokuapp.com fwd=\"216.49.181.254\" dyno=web.1 queue=0 wait=0ms connect=1ms service=7ms status=404 bytes=9759">>,
-    [
-      {month, 3},
-      {day, 12},
-      {time, {22,22,26}},
-      {timestamp, 1363126946},
-      {drain, <<"d.82bd926e-2f86-47ef-ba8b-43e4b4d78412">>},
+      {timestamp, 1363906551},
+      {drain, <<"d.de02fad5-ca75-4863-8d0a-de58404f9225">>},
       {system, <<"heroku">>},
       {dyno, <<"router">>},
-      {message, <<"at=info method=GET path=/search host=my-search-test.herokuapp.com fwd=\"216.49.181.254\" dyno=web.1 queue=0 wait=0ms connect=1ms service=7ms status=404 bytes=9759">>},
+      {message, <<"at=info method=GET path=/ host=fs-home-test.herokuapp.com request_id=755159ef5cfc715185a43e664d0be6c8 fwd=\"216.49.181.254, 204.9.229.1\" dyno=web.1 queue=0 wait=0ms connect=1ms service=364ms status=200 bytes=20946">>},
       {message_parts, [
         {<<"at">>, <<"info">>},
         {<<"method">>, <<"GET">>},
-        {<<"path">>, <<"/search">>},
-        {<<"host">>, <<"my-search-test.herokuapp.com">>},
-        {<<"fwd">>, <<"\"216.49.181.254\"">>},
+        {<<"path">>, <<"/">>},
+        {<<"host">>, <<"fs-home-test.herokuapp.com">>},
+        {<<"request_id">>, <<"755159ef5cfc715185a43e664d0be6c8">>},
+        {<<"fwd">>, <<"\"216.49.181.254, 204.9.229.1\"">>},
         {<<"dyno">>, <<"web.1">>},
         {<<"queue">>, <<"0">>},
         {<<"wait">>, <<"0ms">>},
         {<<"connect">>, <<"1ms">>},
-        {<<"service">>, <<"7ms">>},
-        {<<"status">>, <<"404">>},
-        {<<"bytes">>, <<"9759">>}
+        {<<"service">>, <<"364ms">>},
+        {<<"status">>, <<"200">>},
+        {<<"bytes">>, <<"20946">>}
+      ]}
+    ]
+  },
+  {
+    <<"<40>1 2013-03-21T22:52:26+00:00 d.de02fad5-ca75-4863-8d0a-de58404f9225 heroku web.1 - - source=heroku.6041702.web.1.dabb0da6-d9d5-4627-a299-0b218adf1d3e measure=load_avg_1m val=0.00\n">>,
+    [
+      {timestamp, 1363906346},
+      {drain, <<"d.de02fad5-ca75-4863-8d0a-de58404f9225">>},
+      {system, <<"heroku">>},
+      {dyno, <<"web.1">>},
+      {message, <<"source=heroku.6041702.web.1.dabb0da6-d9d5-4627-a299-0b218adf1d3e measure=load_avg_1m val=0.00">>},
+      {message_parts, [
+        {<<"source">>, <<"heroku.6041702.web.1.dabb0da6-d9d5-4627-a299-0b218adf1d3e">>},
+        {<<"measure">>, <<"load_avg_1m">>},
+        {<<"val">>, <<"0.00">>}
       ]}
     ]
   }

@@ -13,6 +13,8 @@ handle_event({frame, Frame}, State) ->
       Opts = case proplists:get_value(dyno, Message) of
         <<"router">> ->
           heroku_router_metrics(Message);
+        <<"web", _/binary>> ->
+          heroku_dyno_metrics(Message);
         _ ->
           Drain = proplists:get_value(drain, Message),
           Dyno = proplists:get_value(dyno, Message),
@@ -55,6 +57,26 @@ terminate(_Args, _State) ->
 %%   service
 %%   bytes
 %%   
+heroku_dyno_metrics(Message)->
+  MessageParts = proplists:get_value(message_parts, Message),
+  Drain = proplists:get_value(drain, Message),
+  Dyno = proplists:get_value(dyno, Message),
+  Measure = proplists:get_value(<<"measure">>, MessageParts),
+
+  [[
+    {host, <<Drain/binary,".", Dyno/binary>>},
+    {time, proplists:get_value(timestamp, Message)},
+    {description, <<Measure/binary," ",Dyno/binary>>},
+    {state, <<"ok">>},
+    {service, Measure},
+    {metric, binary_to_float(proplists:get_value(<<"val">>, MessageParts))},
+    {ttl, 60},
+    {tags, [
+      proplists:get_value(<<"units">>, MessageParts),
+      proplists:get_value(<<"source">>, MessageParts)
+    ]}
+  ]].
+
 heroku_router_metrics(Message)->
   GenericEvent = generic_router_event(Message),
   [
