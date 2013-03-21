@@ -68,8 +68,8 @@ analyze({ok, Length, Rest}) when byte_size(Rest) > Length ->
   case split(Rest, Length) of
     %% The next frame starts with a digit; in most cases this means we have
     %% a valid frame
-    {ok, Frame, <<Digit,Rest2/binary>>} when ?is_bin_number(Digit) ->
-      {ok, Frame, <<Digit,Rest2/binary>>};
+    {ok, Frame, <<Digit,_/binary>>=Rest2} when ?is_bin_number(Digit) ->
+      {ok, Frame, Rest2};
 
     %% The next "frame" after `Length` doesn't start with a number so we're
     %% probably not looking at a valid frame here; move on by skipping this
