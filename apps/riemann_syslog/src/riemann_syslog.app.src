@@ -8,6 +8,7 @@
                   stdlib,
                   lager,
                   riemann,
+                  crypto,
                   ranch
                  ]},
   {mod, { riemann_syslog_app, []}},

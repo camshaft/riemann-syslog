@@ -15,7 +15,7 @@ deps:
 clean:
 	$(REBAR) clean
 
-generate:
+generate: compile
 	$(REBAR) generate
 	chmod u+x rel/$(APP)/bin/$(APP)
 
