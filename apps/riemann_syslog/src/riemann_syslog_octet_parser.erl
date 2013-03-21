@@ -2,14 +2,9 @@
 
 -export ([parse/1]).
 
--define (BIN_OFFSET, $0).
--define (UPPER, ?BIN_OFFSET+9). %% <<"9">>
--define (LOWER, ?BIN_OFFSET). %% <<"0">>
-
 %% http://tools.ietf.org/html/rfc3164#section-4.1
 -define (MAX_LENGTH, 1024).
-
--define (is_bin_number(Digit), Digit >= ?LOWER andalso Digit =< ?UPPER).
+-define (is_bin_number(Digit), Digit >= $0 andalso Digit =< $9).
 
 %%%%
 %% Iterate through the buffer and gather valid octet frames
@@ -44,7 +39,7 @@ scan(<<" ", Rest/binary>>, Length) when Length =/= 0 andalso Length < ?MAX_LENGT
   {ok, Length, Rest};
 %% We have a number
 scan(<<Digit, Rest/binary>>, Length) when ?is_bin_number(Digit) ->
-  scan(Rest, Length*10+(Digit-?BIN_OFFSET));
+  scan(Rest, Length*10+(Digit-$0));
 %% We've at the end of the stream and we were in the middle of checking numbers
 scan(<<>>, Length) when Length =/= 0  ->
   {eos, Length};
