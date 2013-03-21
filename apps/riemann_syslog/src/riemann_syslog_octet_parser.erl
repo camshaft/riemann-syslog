@@ -3,11 +3,13 @@
 -export ([parse/1]).
 
 -define (BIN_OFFSET, $0).
--define (UPPER, ?BIN_OFFSET+10). %% <<"9">>
--define (LOWER, ?BIN_OFFSET-1). %% <<"0">>
--define (MAX_LENGTH, 99999).
+-define (UPPER, ?BIN_OFFSET+9). %% <<"9">>
+-define (LOWER, ?BIN_OFFSET). %% <<"0">>
 
--define (is_bin_number(Digit), Digit > ?LOWER andalso Digit < ?UPPER).
+%% http://tools.ietf.org/html/rfc3164#section-4.1
+-define (MAX_LENGTH, 1024).
+
+-define (is_bin_number(Digit), Digit >= ?LOWER andalso Digit =< ?UPPER).
 
 %%%%
 %% Iterate through the buffer and gather valid octet frames
