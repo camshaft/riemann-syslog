@@ -2,6 +2,12 @@
 REBAR = ./rebar
 APP = riemann_syslog
 
+RELEASE_TAG=release
+ORIGINAL_DIR=$(APP)_orig
+GIT_HASH=$(shell git log --pretty=format:'%h' -n 1)
+PREV_HASH=$(shell git rev-list $(RELEASE_TAG) --pretty=format:'%h' | sed -n 2p)
+# PREV_RELEASE=$(shell )
+
 default: compile
 
 all: deps compile dev/sync
@@ -35,9 +41,25 @@ distclean: clean
 console:
 	rel/$(APP)/bin/$(APP) console -pa ../../ebin
 
-rebuild:
-	$(REBAR) clean compile generate
-	chmod u+x rel/$(APP)/bin/$(APP)
+rebuild: clean compile generate
+
+start:
+	./rel/$(ORIGINAL_DIR)/bin/$(APP) start
+
+release: clean generate git_hash_rename
+	ln -s `pwd`/rel/$(APP)_$(GIT_HASH) `pwd`/rel/$(ORIGINAL_DIR)
+	@git tag -d $(RELEASE_TAG)
+	@git tag $(RELEASE_TAG)
+
+upgrade: clean generate git_hash_rename
+	$(REBAR) generate-appups previous_release="$(APP)_$(PREV_HASH)"
+	$(REBAR) generate-upgrade previous_release="$(APP)_$(PREV_HASH)"
+	./rel/$(ORIGINAL_DIR)/bin/$(APP) upgrade `pwd`/rel/$(APP)_$(GIT_HASH)
+	@git tag -d $(RELEASE_TAG)
+	@git tag $(RELEASE_TAG)
+
+git_hash_rename:
+	mv rel/$(APP) rel/$(APP)_$(GIT_HASH)
 
 test:
 	$(REBAR) skip_deps=true eunit
