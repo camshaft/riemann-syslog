@@ -62,6 +62,11 @@ heroku_dyno_metrics(Message)->
   Drain = proplists:get_value(drain, Message),
   Dyno = proplists:get_value(dyno, Message),
   Measure = proplists:get_value(<<"measure">>, MessageParts),
+  Val = proplists:get_value(<<"val">>, MessageParts),
+  Metric = case catch binary_to_float(Val) of
+    {'EXIT', {badarg,_}} -> binary_to_integer(Val);
+    N -> N
+  end,
 
   [[
     {host, <<Drain/binary,".", Dyno/binary>>},
@@ -69,7 +74,7 @@ heroku_dyno_metrics(Message)->
     {description, <<Measure/binary," ",Dyno/binary>>},
     {state, <<"ok">>},
     {service, Measure},
-    {metric, binary_to_float(proplists:get_value(<<"val">>, MessageParts))},
+    {metric, Metric},
     {ttl, 60},
     {tags, [
       proplists:get_value(<<"units">>, MessageParts),
