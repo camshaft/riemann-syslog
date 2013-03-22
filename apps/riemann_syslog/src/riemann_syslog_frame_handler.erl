@@ -13,21 +13,10 @@ init(_Args) ->
 handle_event({frame, Frame}, State) ->
   spawn(fun() ->
       {ok, Message} = riemann_syslog_msg_parser:parse(Frame),
-      Drain = proplists:get_value(drain, Message),
+      
       Dyno = proplists:get_value(dyno, Message),
-      Opts = case Dyno of
-        <<"router">> ->
-          heroku_router_metrics(Message);
-        <<"web", _/binary>> ->
-          heroku_dyno_metrics(Message);
-        _ ->
-          [[
-            {host, <<Drain/binary,".",Dyno/binary>>},
-            {time, proplists:get_value(timestamp, Message)},
-            {service, proplists:get_value(system, Message)},
-            {description, proplists:get_value(message, Message)}
-          ]]
-      end,
+      System = proplists:get_value(system, Message),
+      Opts = message_to_event(Message, Dyno, System),
       Events = [riemann:event(Opt) || Opt <- Opts],
       riemann:send(Events)
   end),
@@ -47,6 +36,19 @@ code_change(_OldVsn, State, _Extra) ->
 terminate(_Args, _State) ->
   ok.
 
+message_to_event(Message, <<"router">>, <<"heroku">>)->
+  heroku_router_metrics(Message);
+message_to_event(Message, <<"web", _/binary>>, <<"heroku">>)->
+  heroku_dyno_metrics(Message);
+message_to_event(Message, Dyno, System)->
+  Drain = proplists:get_value(drain, Message),
+  [[
+    {host, <<Drain/binary,".",Dyno/binary>>},
+    {time, proplists:get_value(timestamp, Message)},
+    {service, System},
+    {description, proplists:get_value(message, Message)}
+  ]].
+
 
 %% Send event for
 %%   http response
@@ -61,15 +63,13 @@ terminate(_Args, _State) ->
 %%   bytes
 %%   
 heroku_dyno_metrics(Message)->
-  MessageParts = proplists:get_value(message_parts, Message),
-  Drain = proplists:get_value(drain, Message),
-  Dyno = proplists:get_value(dyno, Message),
-  Measure = proplists:get_value(<<"measure">>, MessageParts),
+  MessageParts = proplists:get_value(message_parts, Message, []),
+  Drain = proplists:get_value(drain, Message, <<"undefined">>),
+  Dyno = proplists:get_value(dyno, Message, <<"web.0">>),
+  Time = proplists:get_value(timestamp, Message, 0),
+  Measure = proplists:get_value(<<"measure">>, MessageParts, <<"unknown">>),
   Val = proplists:get_value(<<"val">>, MessageParts, <<"0">>),
-  Metric = case catch binary_to_float(Val) of
-    {'EXIT', {badarg,_}} -> binary_to_integer(Val);
-    N -> N
-  end,
+  Metric = binary_to_number(Val),
 
   AppName = case catch ets:lookup(apps,Drain) of
     [{_,Entry}|_] -> Entry;
@@ -78,7 +78,7 @@ heroku_dyno_metrics(Message)->
 
   [[
     {host, <<AppName/binary,".", Dyno/binary>>},
-    {time, proplists:get_value(timestamp, Message)},
+    {time, Time},
     {description, <<Measure/binary," ",Dyno/binary>>},
     {state, <<"ok">>},
     {service, Measure},
@@ -89,6 +89,12 @@ heroku_dyno_metrics(Message)->
       proplists:get_value(<<"source">>, MessageParts)
     ]}
   ]].
+
+binary_to_number(Bin)->
+  case catch binary_to_float(Bin) of
+    {'EXIT', {badarg,_}} -> binary_to_integer(Bin);
+    N -> N
+  end.
 
 heroku_router_metrics(Message)->
   GenericEvent = generic_router_event(Message),
