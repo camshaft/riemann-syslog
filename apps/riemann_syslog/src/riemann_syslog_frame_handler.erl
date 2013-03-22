@@ -110,7 +110,7 @@ generic_router_event(Message)->
     [{_,Entry}|_] -> Entry;
     _ ->
       [_,App,AppEnv|_] = re:split(proplists:get_value(<<"host">>, MessageParts), ?HOST_NAME),
-      NewEntry = <<App/binary,".",AppEnv/binary>>,
+      NewEntry = <<AppEnv/binary,".",App/binary>>,
       ets:insert(apps,{Drain,NewEntry}),
       NewEntry
   end,
