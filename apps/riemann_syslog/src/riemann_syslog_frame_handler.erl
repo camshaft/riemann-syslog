@@ -95,7 +95,9 @@ heroku_router_metrics(Message)->
   [
     http_status_metric(GenericEvent, Message),
     queue_metric(GenericEvent, Message),
-    bytes_metric(GenericEvent, Message)
+    bytes_metric(GenericEvent, Message),
+    service_metric(GenericEvent, Message),
+    connect_metric(GenericEvent, Message)
   ].
 
 generic_router_event(Message)->
@@ -146,6 +148,22 @@ bytes_metric(Event, Message)->
     {metric, binary_to_integer(proplists:get_value(<<"bytes">>, MessageParts))},
     {ttl, 60}
   ].
+service_metric(Event, Message)->
+  ms_metric(Event, Message, <<"service">>).
+connect_metric(Event, Message)->
+  ms_metric(Event, Message, <<"connect">>).
+ms_metric(Event, Message, Name)->
+  MessageParts = proplists:get_value(message_parts, Message),
+  MetricBin = proplists:get_value(Name, MessageParts),
+  %% ms = -2
+  Metric = binary:part(MetricBin,0,byte_size(MetricBin)-2),
+  Event++[
+    {state, <<"ok">>},
+    {service, Name},
+    {metric, binary_to_integer(Metric)},
+    {ttl, 60}
+  ].
+
 
 http_status_state(<<"5",_/binary>>)->
   <<"error">>;
