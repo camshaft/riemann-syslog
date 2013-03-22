@@ -4,20 +4,22 @@
 -export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3,
 terminate/2]).
 
+-define (HOST_NAME, "fs-([^\.]*)-(prod|test).*").
+
 init(_Args) ->
   {ok, []}.
 
 handle_event({frame, Frame}, State) ->
   spawn(fun() ->
       {ok, Message} = riemann_syslog_msg_parser:parse(Frame),
-      Opts = case proplists:get_value(dyno, Message) of
+      Drain = proplists:get_value(drain, Message),
+      Dyno = proplists:get_value(dyno, Message),
+      Opts = case Dyno of
         <<"router">> ->
           heroku_router_metrics(Message);
         <<"web", _/binary>> ->
           heroku_dyno_metrics(Message);
         _ ->
-          Drain = proplists:get_value(drain, Message),
-          Dyno = proplists:get_value(dyno, Message),
           [[
             {host, <<Drain/binary,".",Dyno/binary>>},
             {time, proplists:get_value(timestamp, Message)},
@@ -68,8 +70,14 @@ heroku_dyno_metrics(Message)->
     N -> N
   end,
 
+  ets:new(apps, [set,public,named_table]),
+  AppName = case catch ets:lookup(apps,Drain) of
+    [{_,Entry}|_] -> Entry;
+    {'EXIT', {badarg,_}} -> Drain
+  end,
+
   [[
-    {host, <<Drain/binary,".", Dyno/binary>>},
+    {host, <<AppName/binary,".", Dyno/binary>>},
     {time, proplists:get_value(timestamp, Message)},
     {description, <<Measure/binary," ",Dyno/binary>>},
     {state, <<"ok">>},
@@ -95,9 +103,18 @@ generic_router_event(Message)->
   Drain = proplists:get_value(drain, Message),
   Method = proplists:get_value(<<"method">>, MessageParts),
   Path = proplists:get_value(<<"path">>, MessageParts),
+  ets:new(apps, [set,public,named_table]),
+  AppName = case catch ets:lookup(apps,Drain) of
+    [{_,Entry}|_] -> Entry;
+    {'EXIT', {badarg,_}} ->
+      [_,App,AppEnv|_] = re:split(proplists:get_value(<<"host">>, MessageParts), ?HOST_NAME),
+      NewEntry = <<App/binary,".",AppEnv/binary>>,
+      ets:insert(apps,{Drain,NewEntry}),
+      NewEntry
+  end,
 
   [
-    {host, <<Drain/binary,".router">>},
+    {host, <<AppName/binary,".router">>},
     {time, proplists:get_value(timestamp, Message)},
     {description, <<Method/binary," ",Path/binary>>},
     {tags, [
