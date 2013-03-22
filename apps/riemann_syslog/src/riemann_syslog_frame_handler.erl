@@ -165,8 +165,8 @@ ms_metric(Event, Message, Name)->
 
 
 http_status_state(<<"5",_/binary>>)->
-  <<"error">>;
+  <<"critical">>;
 http_status_state(<<"4",_/binary>>)->
-  <<"client_error">>;
+  <<"warning">>;
 http_status_state(_)->
   <<"ok">>.
