@@ -97,7 +97,8 @@ heroku_router_metrics(Message)->
     queue_metric(GenericEvent, Message),
     bytes_metric(GenericEvent, Message),
     service_metric(GenericEvent, Message),
-    connect_metric(GenericEvent, Message)
+    connect_metric(GenericEvent, Message),
+    wait_metric(GenericEvent, Message)
   ].
 
 generic_router_event(Message)->
@@ -151,6 +152,8 @@ service_metric(Event, Message)->
   ms_metric(Event, Message, <<"service">>).
 connect_metric(Event, Message)->
   ms_metric(Event, Message, <<"connect">>).
+wait_metric(Event, Message)->
+  ms_metric(Event, Message, <<"wait">>).
 ms_metric(Event, Message, Name)->
   MessageParts = proplists:get_value(message_parts, Message),
   MetricBin = proplists:get_value(Name, MessageParts),
