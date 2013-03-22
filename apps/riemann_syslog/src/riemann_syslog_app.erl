@@ -10,7 +10,7 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-  {ok, _} = ranch:start_listener(riemann_syslog, 1,
+  {ok, _} = ranch:start_listener(riemann_syslog, get_env(nb_acceptors, 100),
           ranch_tcp, [{port, get_env(port, 5555)}], riemann_syslog_protocol, []),
 
   %% Start the frame event handler
