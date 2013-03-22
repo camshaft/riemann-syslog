@@ -87,7 +87,7 @@ heroku_dyno_metrics(Message)->
     {state, <<"ok">>},
     {service, Measure},
     {metric, Metric},
-    {ttl, 60},
+    {ttl, 600},
     {tags, [
       proplists:get_value(<<"units">>, MessageParts),
       proplists:get_value(<<"source">>, MessageParts)
@@ -140,7 +140,7 @@ http_status_metric(Event, Message)->
   Event++[
     {state, http_status_state(proplists:get_value(<<"status">>, MessageParts))},
     {service, <<"http req">>},
-    {ttl, 60}
+    {ttl, 600}
   ].
 queue_metric(Event, Message)->
   MessageParts = proplists:get_value(message_parts, Message),
@@ -148,7 +148,7 @@ queue_metric(Event, Message)->
     {state, <<"ok">>},
     {service, <<"queue">>},
     {metric, binary_to_integer(proplists:get_value(<<"queue">>, MessageParts))},
-    {ttl, 60}
+    {ttl, 600}
   ].
 bytes_metric(Event, Message)->
   MessageParts = proplists:get_value(message_parts, Message),
@@ -156,7 +156,7 @@ bytes_metric(Event, Message)->
     {state, <<"ok">>},
     {service, <<"bytes">>},
     {metric, binary_to_integer(proplists:get_value(<<"bytes">>, MessageParts))},
-    {ttl, 60}
+    {ttl, 600}
   ].
 service_metric(Event, Message)->
   ms_metric(Event, Message, <<"service">>, {1000, 5000}).
@@ -182,7 +182,7 @@ ms_metric(Event, Message, Name, {Warning, Error})->
     {state, State},
     {service, Name},
     {metric, Metric},
-    {ttl, 60}
+    {ttl, 600}
   ].
 
 http_status_state(<<"5",_/binary>>)->
