@@ -12,13 +12,9 @@ init(_Args) ->
 
 handle_event({frame, Frame}, State) ->
   spawn(fun() ->
-      {ok, Message} = riemann_syslog_msg_parser:parse(Frame),
-      
-      Dyno = proplists:get_value(dyno, Message),
-      System = proplists:get_value(system, Message),
-      Opts = message_to_event(Message, Dyno, System),
-      Events = [riemann:event(Opt) || Opt <- Opts],
-      riemann:send(Events)
+
+    handle_message(riemann_syslog_msg_parser:parse(Frame))
+
   end),
   {ok, State};
 handle_event(_, State)->
@@ -36,18 +32,26 @@ code_change(_OldVsn, State, _Extra) ->
 terminate(_Args, _State) ->
   ok.
 
+handle_message({ok, Message})->
+  Dyno = proplists:get_value(dyno, Message),
+  System = proplists:get_value(system, Message),
+  Opts = message_to_event(Message, Dyno, System),
+  Events = [riemann:event(Opt) || Opt <- Opts],
+  case Events of
+    [] ->
+      ok;
+    Events ->
+      riemann:send(Events)
+  end;
+handle_message(_)->
+  ok.
+
 message_to_event(Message, <<"router">>, <<"heroku">>)->
   heroku_router_metrics(Message);
 message_to_event(Message, <<"web", _/binary>>, <<"heroku">>)->
   heroku_dyno_metrics(Message);
-message_to_event(Message, Dyno, System)->
-  Drain = proplists:get_value(drain, Message),
-  [[
-    {host, <<Drain/binary,".",Dyno/binary>>},
-    {time, proplists:get_value(timestamp, Message)},
-    {service, System},
-    {description, proplists:get_value(message, Message)}
-  ]].
+message_to_event(_, _, _)->
+  [].
 
 
 %% Send event for

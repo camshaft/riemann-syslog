@@ -6,8 +6,11 @@
 -define (KEY_VALUE_PAIR, "([^= ]*)=(\"[^\"]*\"|[^ \"]*) *").
 
 parse(Frame) ->
+  handle_parts(re:split(Frame, ?HEROKU_RE)).
 
-  Parts = re:split(Frame, ?HEROKU_RE),
+handle_parts(Parts) when length(Parts) < 6 ->
+  {error, badmsg};
+handle_parts(Parts) ->
   DateTime = iso8601:parse(lists:nth(2, Parts)),
   Message = re:split(lists:nth(6, Parts), ?KEY_VALUE_PAIR),
 
@@ -19,6 +22,7 @@ parse(Frame) ->
     {message, lists:nth(6, Parts)},
     {message_parts, make_parts(Message)}
   ]}.
+
 
 make_parts(Parts)->
   make_parts(Parts, []).
