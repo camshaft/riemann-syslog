@@ -7,6 +7,7 @@ terminate/2]).
 -define (HOST_NAME, "fs-([^\.]*)-(prod|test).*").
 
 init(_Args) ->
+  ets:new(apps, [set,public,named_table]),
   {ok, []}.
 
 handle_event({frame, Frame}, State) ->
@@ -70,7 +71,6 @@ heroku_dyno_metrics(Message)->
     N -> N
   end,
 
-  ets:new(apps, [set,public,named_table]),
   AppName = case catch ets:lookup(apps,Drain) of
     [{_,Entry}|_] -> Entry;
     _ -> Drain
@@ -105,7 +105,6 @@ generic_router_event(Message)->
   Drain = proplists:get_value(drain, Message),
   Method = proplists:get_value(<<"method">>, MessageParts),
   Path = proplists:get_value(<<"path">>, MessageParts),
-  ets:new(apps, [set,public,named_table]),
   AppName = case catch ets:lookup(apps,Drain) of
     [{_,Entry}|_] -> Entry;
     _ ->
