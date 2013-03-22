@@ -8,7 +8,6 @@
 parse(Frame) ->
 
   Parts = re:split(Frame, ?HEROKU_RE),
-  io:format("~p~n", [Parts]),
   DateTime = iso8601:parse(lists:nth(2, Parts)),
   Message = re:split(lists:nth(6, Parts), ?KEY_VALUE_PAIR),
 
