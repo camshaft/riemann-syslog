@@ -149,23 +149,31 @@ bytes_metric(Event, Message)->
     {ttl, 60}
   ].
 service_metric(Event, Message)->
-  ms_metric(Event, Message, <<"service">>).
+  ms_metric(Event, Message, <<"service">>, {1000, 5000}).
 connect_metric(Event, Message)->
-  ms_metric(Event, Message, <<"connect">>).
+  ms_metric(Event, Message, <<"connect">>, {5, 20}).
 wait_metric(Event, Message)->
-  ms_metric(Event, Message, <<"wait">>).
-ms_metric(Event, Message, Name)->
+  ms_metric(Event, Message, <<"wait">>, {5, 20}).
+
+ms_metric(Event, Message, Name, {Warning, Error})->
   MessageParts = proplists:get_value(message_parts, Message),
   MetricBin = proplists:get_value(Name, MessageParts),
   %% ms = -2
-  Metric = binary:part(MetricBin,0,byte_size(MetricBin)-2),
+  Metric = binary_to_integer(binary:part(MetricBin,0,byte_size(MetricBin)-2)),
+  State = case Metric of
+    M when M > Error ->
+      <<"critical">>;
+    M when M > Warning ->
+      <<"warning">>;
+    _ ->
+      <<"ok">>
+  end,
   Event++[
-    {state, <<"ok">>},
+    {state, State},
     {service, Name},
-    {metric, binary_to_integer(Metric)},
+    {metric, Metric},
     {ttl, 60}
   ].
-
 
 http_status_state(<<"5",_/binary>>)->
   <<"critical">>;
