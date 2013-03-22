@@ -73,7 +73,7 @@ heroku_dyno_metrics(Message)->
   ets:new(apps, [set,public,named_table]),
   AppName = case catch ets:lookup(apps,Drain) of
     [{_,Entry}|_] -> Entry;
-    {'EXIT', {badarg,_}} -> Drain
+    _ -> Drain
   end,
 
   [[
@@ -108,7 +108,7 @@ generic_router_event(Message)->
   ets:new(apps, [set,public,named_table]),
   AppName = case catch ets:lookup(apps,Drain) of
     [{_,Entry}|_] -> Entry;
-    {'EXIT', {badarg,_}} ->
+    _ ->
       [_,App,AppEnv|_] = re:split(proplists:get_value(<<"host">>, MessageParts), ?HOST_NAME),
       NewEntry = <<App/binary,".",AppEnv/binary>>,
       ets:insert(apps,{Drain,NewEntry}),
