@@ -24,4 +24,10 @@ start_link() ->
 %% ===================================================================
 
 init([]) ->
-  {ok, { {one_for_one, 10, 10}, []} }.
+  Pools = riemann_syslog:get_env(pools, []),
+  PoolSpecs = lists:map(fun({Name, SizeArgs}) ->
+      PoolArgs = [{name, {local, Name}},
+                  {worker_module, riemann}] ++ SizeArgs,
+      poolboy:child_spec(Name, PoolArgs, [])
+  end, Pools),
+  {ok, {{one_for_one, 10, 10}, PoolSpecs}}.

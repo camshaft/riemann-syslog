@@ -41,7 +41,7 @@ handle_message({ok, Message})->
     [] ->
       ok;
     Events ->
-      riemann:send(Events)
+      riemann_syslog:send(Events)
   end;
 handle_message(_)->
   ok.
