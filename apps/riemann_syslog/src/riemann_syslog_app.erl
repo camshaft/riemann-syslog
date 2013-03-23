@@ -10,6 +10,9 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
+  %% App names
+  ets:new(apps, [set,public,named_table]),
+
   {ok, _} = ranch:start_listener(riemann_syslog, riemann_syslog:get_env(nb_acceptors, 100),
           ranch_tcp, [{port, riemann_syslog:get_env(port, 5555)}], riemann_syslog_protocol, []),
 

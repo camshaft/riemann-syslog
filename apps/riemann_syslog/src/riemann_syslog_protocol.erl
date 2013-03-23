@@ -13,7 +13,10 @@ init(ListenerPid, Socket, Transport, _Opts = []) ->
   loop(Socket, Transport, <<>>).
 
 handle(Frame)->
-  gen_event:notify(frame_man, {frame, Frame}).
+  %% This is too slow... :(
+  % gen_event:notify(frame_man, {frame, Frame}),
+  Event = riemann_syslog_msg_parser:parse(Frame),
+  riemann_syslog_frame_handler:handle_message(Event).
 
 loop(Socket, Transport, Buffer) ->
   case Transport:recv(Socket, 0, infinity) of

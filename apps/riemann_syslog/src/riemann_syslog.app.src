@@ -8,16 +8,15 @@
                   stdlib,
                   lager,
                   riemann,
-                  crypto,
                   ranch
                  ]},
   {mod, { riemann_syslog_app, []}},
   {env, [
     {pools, [
-        {riemann, [
-            {size, 10},
-            {max_overflow, 30}
-        ]}
+      {riemann, [
+        {size, 10},
+        {max_overflow, 30}
+      ]}
     ]}
   ]}
  ]}.

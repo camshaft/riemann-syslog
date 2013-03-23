@@ -4,6 +4,8 @@
 -export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3,
 terminate/2]).
 
+-export ([handle_message/1]).
+
 -define (HOST_NAME, "fs-([^\.]*)-(prod|test).*").
 
 init(_Args) ->
@@ -96,7 +98,10 @@ heroku_dyno_metrics(Message)->
 
 binary_to_number(Bin)->
   case catch binary_to_float(Bin) of
-    {'EXIT', {badarg,_}} -> binary_to_integer(Bin);
+    {'EXIT', {badarg,_}} -> case catch binary_to_integer(Bin) of
+      {'EXIT', {badarg,_}} -> 0;
+      N -> N
+    end;
     N -> N
   end.
 
@@ -147,7 +152,7 @@ queue_metric(Event, Message)->
   Event++[
     {state, <<"ok">>},
     {service, <<"queue">>},
-    {metric, binary_to_integer(proplists:get_value(<<"queue">>, MessageParts))},
+    {metric, binary_to_integer(proplists:get_value(<<"queue">>, MessageParts, <<"0">>))},
     {ttl, 600}
   ].
 bytes_metric(Event, Message)->
@@ -155,7 +160,7 @@ bytes_metric(Event, Message)->
   Event++[
     {state, <<"ok">>},
     {service, <<"bytes">>},
-    {metric, binary_to_integer(proplists:get_value(<<"bytes">>, MessageParts))},
+    {metric, binary_to_integer(proplists:get_value(<<"bytes">>, MessageParts, <<"0">>))},
     {ttl, 600}
   ].
 service_metric(Event, Message)->
@@ -166,10 +171,10 @@ wait_metric(Event, Message)->
   ms_metric(Event, Message, <<"wait">>, {5, 20}).
 
 ms_metric(Event, Message, Name, {Warning, Error})->
-  MessageParts = proplists:get_value(message_parts, Message),
-  MetricBin = proplists:get_value(Name, MessageParts),
+  MessageParts = proplists:get_value(message_parts, Message, []),
+  MetricBin = proplists:get_value(Name, MessageParts, <<"0ms">>),
   %% ms = -2
-  Metric = binary_to_integer(binary:part(MetricBin,0,byte_size(MetricBin)-2)),
+  Metric = binary_to_number(binary:part(MetricBin,0,byte_size(MetricBin)-2)),
   State = case Metric of
     M when M > Error ->
       <<"critical">>;
