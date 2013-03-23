@@ -28,7 +28,7 @@ start(_StartType, _StartArgs) ->
   application:stop(riemann),
 
   %% Tell riemann how we're doing
-  timer:apply_interval(60000, riemann_syslog, send_folsom_metrics, []),
+  timer:apply_interval(20000, riemann_syslog, send_folsom_metrics, []),
 
   riemann_syslog_sup:start_link().
 

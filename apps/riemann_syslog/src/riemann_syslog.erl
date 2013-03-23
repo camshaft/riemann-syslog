@@ -33,8 +33,8 @@ send_folsom_metrics()->
   Event = riemann:event([
     {host, <<"riemann-syslog">>},
     {state, <<"ok">>},
-    {service, <<"events/min">>},
-    {metric, proplists:get_value(one, Metrics)},
+    {service, <<"events/sec">>},
+    {metric, proplists:get_value(one, Metrics, 0)/60},
     {ttl, 60}
   ]),
   send([Event]).
