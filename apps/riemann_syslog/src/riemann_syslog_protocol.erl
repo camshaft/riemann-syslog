@@ -16,13 +16,15 @@ handle(Frame)->
   %% This is too slow... :(
   % gen_event:notify(frame_man, {frame, Frame}),
   Event = riemann_syslog_msg_parser:parse(Frame),
-  riemann_syslog_frame_handler:handle_message(Event).
+  Opts = riemann_syslog_frame_handler:handle_message(Event),
+  [riemann:event(Opt) || Opt <- Opts].
 
 loop(Socket, Transport, Buffer) ->
   case Transport:recv(Socket, 0, infinity) of
     {ok, Data} ->
       {Frames, Buffer2} = riemann_syslog_octet_parser:parse(<< Buffer/binary, Data/binary >>),
-      [handle(Frame) || Frame <- Frames],
+      Events = [handle(Frame) || Frame <- Frames],
+      riemann_syslog:send(lists:flatten(Events)),
       loop(Socket, Transport, Buffer2);
     {error, closed}->
       ok;

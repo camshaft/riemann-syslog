@@ -37,16 +37,9 @@ terminate(_Args, _State) ->
 handle_message({ok, Message})->
   Dyno = proplists:get_value(dyno, Message),
   System = proplists:get_value(system, Message),
-  Opts = message_to_event(Message, Dyno, System),
-  Events = [riemann:event(Opt) || Opt <- Opts],
-  case Events of
-    [] ->
-      ok;
-    Events ->
-      riemann_syslog:send(Events)
-  end;
+  message_to_event(Message, Dyno, System);
 handle_message(_)->
-  ok.
+  [].
 
 message_to_event(Message, <<"router">>, <<"heroku">>)->
   heroku_router_metrics(Message);
