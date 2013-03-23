@@ -10,6 +10,9 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
+  %% Metrics
+  folsom_metrics:new_spiral(events),
+
   %% App names
   ets:new(apps, [set,public,named_table]),
 
@@ -23,6 +26,9 @@ start(_StartType, _StartArgs) ->
 
   %% We want to pool the gen_server
   application:stop(riemann),
+
+  %% Tell riemann how we're doing
+  timer:apply_interval(60000, riemann_syslog, send_folsom_metrics, []),
 
   riemann_syslog_sup:start_link().
 
