@@ -16,7 +16,7 @@ handle(Frame)->
   %% This is too slow... :(
   % gen_event:notify(frame_man, {frame, Frame}),
   Event = riemann_syslog_msg_parser:parse(Frame),
-  Opts = riemann_syslog_frame_handler:handle_message(Event),
+  Opts = riemann_syslog_heroku_metric:handle_message(Event),
   [riemann:event(Opt) || Opt <- Opts].
 
 loop(Socket, Transport, Buffer) ->

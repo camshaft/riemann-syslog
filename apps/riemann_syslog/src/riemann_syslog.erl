@@ -23,6 +23,8 @@ start() ->
 stop() ->
   application:stop(riemann_syslog).
 
+send([])->
+  noop;
 send(Events)->
   poolboy:transaction(riemann, fun(Worker) ->
     gen_server:call(Worker, {send, Events}),

@@ -1,38 +1,8 @@
--module (riemann_syslog_frame_handler).
--behaviour(gen_event).
-
--export([init/1, handle_event/2, handle_call/2, handle_info/2, code_change/3,
-terminate/2]).
+-module (riemann_syslog_heroku_metric).
 
 -export ([handle_message/1]).
 
 -define (HOST_NAME, "fs-([^\.]*)-(prod|test).*").
-
-init(_Args) ->
-  ets:new(apps, [set,public,named_table]),
-  {ok, []}.
-
-handle_event({frame, Frame}, State) ->
-  spawn(fun() ->
-
-    handle_message(riemann_syslog_msg_parser:parse(Frame))
-
-  end),
-  {ok, State};
-handle_event(_, State)->
-  {ok, State}.
-
-handle_call(_, State) ->
-  {ok, ok, State}.
- 
-handle_info(_, State) ->
-  {ok, State}.
- 
-code_change(_OldVsn, State, _Extra) ->
-  {ok, State}.
-
-terminate(_Args, _State) ->
-  ok.
 
 handle_message({ok, Message})->
   Dyno = proplists:get_value(dyno, Message),
