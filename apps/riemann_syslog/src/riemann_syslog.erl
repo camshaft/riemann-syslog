@@ -25,7 +25,8 @@ stop() ->
 
 send(Events)->
   poolboy:transaction(riemann, fun(Worker) ->
-      gen_server:call(Worker, {send, Events})
+    gen_server:call(Worker, {send, Events}),
+    folsom_metrics:notify({events, length(Events)})
   end).
 
 send_folsom_metrics()->

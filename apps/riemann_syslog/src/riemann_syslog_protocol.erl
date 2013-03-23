@@ -24,9 +24,7 @@ loop(Socket, Transport, Buffer) ->
     {ok, Data} ->
       {Frames, Buffer2} = riemann_syslog_octet_parser:parse(<< Buffer/binary, Data/binary >>),
       Events = [handle(Frame) || Frame <- Frames],
-      List = lists:flatten(Events),
-      folsom_metrics:notify({events, length(List)}),
-      riemann_syslog:send(List),
+      riemann_syslog:send(lists:flatten(Events)),
       loop(Socket, Transport, Buffer2);
     {error, closed}->
       ok;
