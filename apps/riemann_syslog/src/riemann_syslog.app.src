@@ -7,8 +7,6 @@
                   kernel,
                   stdlib,
                   lager,
-                  riemann,
-                  folsom,
                   ranch
                  ]},
   {mod, { riemann_syslog_app, []}},

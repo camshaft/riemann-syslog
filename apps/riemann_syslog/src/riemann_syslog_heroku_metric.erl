@@ -80,10 +80,10 @@ heroku_router_metrics(Message)->
   ].
 
 generic_router_event(Message)->
-  MessageParts = proplists:get_value(message_parts, Message),
-  Drain = proplists:get_value(drain, Message),
-  Method = proplists:get_value(<<"method">>, MessageParts),
-  Path = proplists:get_value(<<"path">>, MessageParts),
+  MessageParts = proplists:get_value(message_parts, Message, []),
+  Drain = proplists:get_value(drain, Message, <<"">>),
+  Method = proplists:get_value(<<"method">>, MessageParts, <<"">>),
+  Path = proplists:get_value(<<"path">>, MessageParts, <<"">>),
   AppName = case catch ets:lookup(apps,Drain) of
     [{_,Entry}|_] -> Entry;
     _ ->
