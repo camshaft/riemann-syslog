@@ -2,26 +2,23 @@
 
 -export ([parse/1]).
 
--define (HEROKU_RE, "^<[0-9]+>[0-9]? ([^ ]+) (d.[^ ]+) ([^ ]+) ([^ ]+) - - (.*)").
--define (KEY_VALUE_PAIR, "([^= ]*)=(\"[^\"]*\"|[^ \"]*) *").
+-define (HEROKU_RE, "^<[0-9]+>[0-9]? ([^ ]+) (d.[^ ]+) ([^ ]+) ([^ ]+) - - ((.*) ([^= ]*)=(\"[^\"]*\"|[^ \"]*) *)* *").
 
 parse(Frame) ->
   handle_parts(re:split(Frame, ?HEROKU_RE)).
 
-handle_parts(Parts) when length(Parts) < 6 ->
-  {error, badmsg};
-handle_parts(Parts) ->
-  DateTime = iso8601:parse(lists:nth(2, Parts)),
-  Message = re:split(lists:nth(6, Parts), ?KEY_VALUE_PAIR),
-
+handle_parts([_, Date, Drain, System, Dyno, Message|MessageParts]) ->
   {ok, [
-    {timestamp, datetime_to_epoch(DateTime)},
-    {drain, lists:nth(3, Parts)},
-    {system, lists:nth(4, Parts)},
-    {dyno, lists:nth(5, Parts)},
-    {message, lists:nth(6, Parts)},
-    {message_parts, make_parts(Message)}
-  ]}.
+    %% TODO write a lib that parses iso8601 with binary - could potentially double performance of this module
+    {timestamp, datetime_to_epoch(iso8601:parse(Date))},
+    {drain, Drain},
+    {system, System},
+    {dyno, Dyno},
+    {message, Message},
+    {message_parts, make_parts(MessageParts)}
+  ]};
+handle_parts(_) ->
+  {error, badmsg}.
 
 
 make_parts(Parts)->

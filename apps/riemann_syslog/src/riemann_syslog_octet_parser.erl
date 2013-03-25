@@ -17,7 +17,7 @@ parse(<<>>, Frames)->
 parse(Buffer, Frames)->
   case frame(Buffer) of
     {ok, Frame, Rest} ->
-      parse(Rest, [Frame]++Frames);
+      parse(Rest, [Frame|Frames]);
     eos ->
       {Frames, <<>>};
     _ ->
