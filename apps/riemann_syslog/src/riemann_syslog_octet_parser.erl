@@ -17,9 +17,9 @@ parse(<<>>, Frames)->
 parse(Buffer, Frames)->
   case frame(Buffer) of
     {ok, Frame, Rest} ->
-      parse(Rest, Frames++[Frame]);
+      parse(Rest, [Frame]++Frames);
     eos ->
-      {Frames, <<"">>};
+      {Frames, <<>>};
     _ ->
       {Frames, Buffer}
   end.
@@ -42,7 +42,7 @@ scan(<<Digit, Rest/binary>>, Length) when ?is_bin_number(Digit) ->
   scan(Rest, Length*10+(Digit-$0));
 %% We've at the end of the stream and we were in the middle of checking numbers
 scan(<<>>, Length) when Length =/= 0  ->
-  {eos, Length};
+  continue;
 %% We've at the end of the stream and haven't found any numbers
 scan(<<>>, _)  ->
   eos;
