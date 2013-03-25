@@ -21,7 +21,7 @@ loop(Socket, Transport, Buffer) ->
   case Transport:recv(Socket, 0, infinity) of
     {ok, Data} ->
       {Frames, Buffer2} = riemann_syslog_octet_parser:parse(<< Buffer/binary, Data/binary >>),
-      Events = [try handle(Frame) of Evs -> Evs catch _ -> [] end || Frame <- Frames],
+      Events = [case (catch handle(Frame)) of Evs when is_list(Evs)-> Evs; _ -> [] end || Frame <- Frames],
       riemann_syslog:send(lists:flatten(Events)),
       loop(Socket, Transport, Buffer2);
     {error, closed}->

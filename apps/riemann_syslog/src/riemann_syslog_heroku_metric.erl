@@ -61,11 +61,23 @@ heroku_dyno_metrics(Message)->
 
 binary_to_number(Bin)->
   case catch binary_to_float(Bin) of
-    {'EXIT', {badarg,_}} -> case catch binary_to_integer(Bin) of
-      {'EXIT', {badarg,_}} -> 0;
-      N -> N
-    end;
-    N -> N
+    N when is_float(N) -> N;
+    _ -> case catch binary_to_integer(Bin) of
+      N when is_integer(N) -> N;
+      _ -> case catch binary_ms_to_integer(Bin) of
+        N when is_integer(N) -> N;
+        _ -> 0
+      end
+    end
+  end.
+binary_ms_to_integer(Bin)->
+  case byte_size(Bin) of
+    Size when Size > 2 ->
+      NumberSize = Size-2,
+      <<Number:NumberSize/binary, _/binary>> = Bin,
+      binary_to_number(Number);
+    _ ->
+      0
   end.
 
 heroku_router_metrics(Message)->
@@ -115,7 +127,7 @@ queue_metric(Event, Message)->
   Event++[
     {state, <<"ok">>},
     {service, <<"queue">>},
-    {metric, binary_to_integer(proplists:get_value(<<"queue">>, MessageParts, <<"0">>))},
+    {metric, binary_to_number(proplists:get_value(<<"queue">>, MessageParts, <<"0">>))},
     {ttl, 600}
   ].
 bytes_metric(Event, Message)->
@@ -123,7 +135,7 @@ bytes_metric(Event, Message)->
   Event++[
     {state, <<"ok">>},
     {service, <<"bytes">>},
-    {metric, binary_to_integer(proplists:get_value(<<"bytes">>, MessageParts, <<"0">>))},
+    {metric, binary_to_number(proplists:get_value(<<"bytes">>, MessageParts, <<"0">>))},
     {ttl, 600}
   ].
 service_metric(Event, Message)->
@@ -137,7 +149,7 @@ ms_metric(Event, Message, Name, {Warning, Error})->
   MessageParts = proplists:get_value(message_parts, Message, []),
   MetricBin = proplists:get_value(Name, MessageParts, <<"0ms">>),
   %% ms = -2
-  Metric = binary_to_number(binary:part(MetricBin,0,byte_size(MetricBin)-2)),
+  Metric = binary_to_number(MetricBin),
   State = case Metric of
     M when M > Error ->
       <<"critical">>;
