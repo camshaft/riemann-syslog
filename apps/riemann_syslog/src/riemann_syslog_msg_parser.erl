@@ -33,7 +33,7 @@ make_parts([Key|Rest], List)->
     {Rest2} ->
       make_parts(Rest2, List);
     {Value, Rest2} ->
-      make_parts(Rest2, List++[{Key, Value}])
+      make_parts(Rest2, [{Key, Value}|List])
   end.
 
 get_value([])->
