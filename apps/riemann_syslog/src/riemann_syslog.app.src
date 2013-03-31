@@ -17,11 +17,30 @@
                  ]},
   {mod, { riemann_syslog_app, []}},
   {env, [
-    {pools, [
+    {workers, [
+
       {riemann, [
         {size, 10},
         {max_overflow, 30}
-      ]}
+      ], []},
+
+      {metric_to_riemann, [
+        {size, 10},
+        {max_overflow, 30}
+      ], [
+        {ranges, [
+          {<<"load_avg_5m">>, [
+            {<<"critical">>, 1.0},
+            {<<"warning">>, 0.75}
+          ]}
+        ]}
+      ]},
+
+      {heroku_router_to_riemann, [
+        {size, 10},
+        {max_overflow, 30}
+      ], []}
+
     ]}
   ]}
 ]}.
