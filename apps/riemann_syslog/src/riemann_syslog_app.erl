@@ -10,16 +10,11 @@
 %% ===================================================================
 
 start(_StartType, _StartArgs) ->
-  %% App names
-  ets:new(apps, [set,public,named_table,{read_concurrency,true}]),
+  {ok, _} = syslog_drain:start_server(riemann_syslog_drain, riemann_syslog:get_env(drain_acceptors, 100),
+    [{port, riemann_syslog:get_env(port, 10514)}], []),
 
-  {ok, _} = ranch:start_listener(riemann_syslog, riemann_syslog:get_env(nb_acceptors, 100),
-          ranch_tcp, [{port, riemann_syslog:get_env(port, 5555)}], riemann_syslog_protocol, []),
-
-  %% Start the frame event handler
-  {ok, Pid} = gen_event:start_link({local, frame_man}),
-
-  gen_event:add_handler(Pid, riemann_syslog_frame_handler, []),
+  {ok, _} = syslog_drain_ws:start_server(riemann_syslog_drain_ws, riemann_syslog:get_env(ws_drain_acceptors, 100),
+    [{port, riemann_syslog:get_env(ws_port, 10515)}], []),
 
   riemann_syslog_sup:start_link().
 

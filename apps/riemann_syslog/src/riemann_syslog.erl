@@ -13,8 +13,14 @@ start_link() ->
   riemann_syslog_sup:start_link().
 
 start() ->
+  ok = application:start(crypto),
   ok = application:start(ranch),
+  ok = application:start(cowboy),
   ok = lager:start(),
+  ok = application:start(folsom),
+  ok = application:start(syslog_pipeline),
+  ok = application:start(syslog_drain),
+  ok = application:start(syslog_drain_ws),
   ok = application:start(riemann_syslog).
 
 stop() ->
