@@ -42,19 +42,20 @@ get_env(Name, Default) ->
 
 binary_to_number(Bin)->
   case Bin of
-    N when is_integer(N) ->
-      N;
-    _ ->
-      case catch binary_to_float(Bin) of
+    N when is_integer(N) -> N;
+    _ -> case Bin of
         N when is_float(N) -> N;
-        _ -> case catch binary_to_integer(Bin) of
-          N when is_integer(N) -> N;
-          _ -> case catch binary_ms_to_integer(Bin) of
-            N when is_integer(N) -> N;
-            _ -> 0
+        _ -> case catch binary_to_float(Bin) of
+            N when is_float(N) -> N;
+            _ -> case catch binary_to_integer(Bin) of
+              N when is_integer(N) -> N;
+              _ -> case catch binary_ms_to_integer(Bin) of
+                N when is_integer(N) -> N;
+                _ -> 0
           end
         end
       end
+    end
   end.
 
 binary_ms_to_integer(Bin)->

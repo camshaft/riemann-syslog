@@ -17,5 +17,7 @@
 # Kernel polling
 +K true
 
+-smp
+
 # 4 async threads
-+A 4
++A 8
