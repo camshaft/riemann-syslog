@@ -9,11 +9,10 @@
                   crypto,
                   ranch,
                   cowboy,
-                  folsom,
-                  syslog_pipeline,
                   syslog_drain,
                   syslog_drain_ws,
-                  ranch
+                  folsom,
+                  syslog_pipeline
                  ]},
   {mod, { riemann_syslog_app, []}},
   {env, [
